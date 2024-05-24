@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/mathvaillant/ticket-booking-project-v0/models"
 	"gorm.io/gorm"
@@ -24,11 +25,50 @@ func (r *EventRepository) GetMany(ctx context.Context) ([]*models.Event, error) 
 }
 
 func (r *EventRepository) GetOne(ctx context.Context, eventId string) (*models.Event, error) {
-	return nil, nil
+	id, _ := strconv.Atoi(eventId)
+	event := &models.Event{}
+
+	res := r.db.Model(event).Where("id = ?", uint(id)).First(event)
+
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	return event, nil
 }
 
 func (r *EventRepository) CreateOne(ctx context.Context, event *models.Event) (*models.Event, error) {
-	return nil, nil
+	res := r.db.Model(event).Create(event)
+
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	return event, nil
+}
+
+func (r *EventRepository) UpdateOne(ctx context.Context, eventId string, updateData map[string]interface{}) (*models.Event, error) {
+	id, _ := strconv.Atoi(eventId)
+	event := &models.Event{}
+
+	updateRes := r.db.Model(event).Where("id = ?", uint(id)).Updates(updateData)
+
+	if updateRes.Error != nil {
+		return nil, updateRes.Error
+	}
+
+	getRes := r.db.Model(event).Where("id = ?", uint(id)).First(event)
+
+	if getRes.Error != nil {
+		return nil, getRes.Error
+	}
+
+	return event, nil
+}
+
+func (r *EventRepository) DeleteOne(ctx context.Context, eventId string) error {
+	res := r.db.Delete(&models.Event{}, eventId)
+	return res.Error
 }
 
 func NewEventRepository(db *gorm.DB) models.EventRepository {
