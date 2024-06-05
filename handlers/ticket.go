@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -18,7 +19,9 @@ func (h *TicketHandler) GetMany(ctx *fiber.Ctx) error {
 	context, cancel := context.WithTimeout(context.Background(), time.Duration(5*time.Second))
 	defer cancel()
 
-	tickets, err := h.repository.GetMany(context)
+	userId := uint(ctx.Locals("userId").(float64))
+
+	tickets, err := h.repository.GetMany(context, userId)
 
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
@@ -35,12 +38,13 @@ func (h *TicketHandler) GetMany(ctx *fiber.Ctx) error {
 }
 
 func (h *TicketHandler) GetOne(ctx *fiber.Ctx) error {
-	ticketId := ctx.Params("ticketId")
-
 	context, cancel := context.WithTimeout(context.Background(), time.Duration(5*time.Second))
 	defer cancel()
 
-	ticket, err := h.repository.GetOne(context, ticketId)
+	ticketId, _ := strconv.Atoi(ctx.Params("ticketId"))
+	userId := uint(ctx.Locals("userId").(float64))
+
+	ticket, err := h.repository.GetOne(context, userId, uint(ticketId))
 
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
@@ -70,10 +74,11 @@ func (h *TicketHandler) GetOne(ctx *fiber.Ctx) error {
 }
 
 func (h *TicketHandler) CreateOne(ctx *fiber.Ctx) error {
-	ticket := &models.Ticket{}
-
 	context, cancel := context.WithTimeout(context.Background(), time.Duration(5*time.Second))
 	defer cancel()
+
+	ticket := &models.Ticket{}
+	userId := uint(ctx.Locals("userId").(float64))
 
 	if err := ctx.BodyParser(ticket); err != nil {
 		return ctx.Status(fiber.StatusUnprocessableEntity).JSON(&fiber.Map{
@@ -83,7 +88,7 @@ func (h *TicketHandler) CreateOne(ctx *fiber.Ctx) error {
 		})
 	}
 
-	ticket, err := h.repository.CreateOne(context, ticket)
+	ticket, err := h.repository.CreateOne(context, userId, ticket)
 
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
@@ -101,14 +106,16 @@ func (h *TicketHandler) CreateOne(ctx *fiber.Ctx) error {
 }
 
 func (h *TicketHandler) ValidateOne(ctx *fiber.Ctx) error {
-	ticketId := ctx.Params("ticketId")
-	validateData := make(map[string]interface{})
-	validateData["entered"] = true
-
 	context, cancel := context.WithTimeout(context.Background(), time.Duration(5*time.Second))
 	defer cancel()
 
-	ticket, err := h.repository.UpdateOne(context, ticketId, validateData)
+	ticketId, _ := strconv.Atoi(ctx.Params("ticketId"))
+	userId := uint(ctx.Locals("userId").(float64))
+
+	validateData := make(map[string]interface{})
+	validateData["entered"] = true
+
+	ticket, err := h.repository.UpdateOne(context, userId, uint(ticketId), validateData)
 
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(&fiber.Map{
