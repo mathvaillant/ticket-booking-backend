@@ -21,3 +21,8 @@ type TicketRepository interface {
 	CreateOne(ctx context.Context, userId uint, ticket *Ticket) (*Ticket, error)
 	UpdateOne(ctx context.Context, userId uint, ticketId uint, updateData map[string]interface{}) (*Ticket, error)
 }
+
+type ValidateTicket struct {
+	TicketId uint `json:"ticketId"`
+	OwnerId  uint `json:"ownerId"`
+}
