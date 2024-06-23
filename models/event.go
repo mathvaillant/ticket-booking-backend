@@ -20,10 +20,10 @@ type Event struct {
 
 type EventRepository interface {
 	GetMany(ctx context.Context) ([]*Event, error)
-	GetOne(ctx context.Context, eventId string) (*Event, error)
+	GetOne(ctx context.Context, eventId uint) (*Event, error)
 	CreateOne(ctx context.Context, event *Event) (*Event, error)
-	UpdateOne(ctx context.Context, eventId string, updateData map[string]interface{}) (*Event, error)
-	DeleteOne(ctx context.Context, eventId string) error
+	UpdateOne(ctx context.Context, eventId uint, updateData map[string]interface{}) (*Event, error)
+	DeleteOne(ctx context.Context, eventId uint) error
 }
 
 func (e *Event) AfterFind(db *gorm.DB) (err error) {
