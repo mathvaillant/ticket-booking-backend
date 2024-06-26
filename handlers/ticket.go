@@ -136,9 +136,9 @@ func (h *TicketHandler) ValidateOne(ctx *fiber.Ctx) error {
 		})
 	}
 
-	return ctx.Status(fiber.StatusCreated).JSON(&fiber.Map{
+	return ctx.Status(fiber.StatusOK).JSON(&fiber.Map{
 		"status":  "success",
-		"message": "Ticket valid, welcome to the show!",
+		"message": "Welcome to the show!",
 		"data":    ticket,
 	})
 }
